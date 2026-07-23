@@ -38,6 +38,7 @@ Dash action; the mod simply adds the configured output key.
 - A short indicator flash whenever the remap fires.
 - Conflict warnings when both sides use the same key.
 - A master switch that disables remapping without clearing your configuration.
+- An optional settings tab inside Eclipse 1.9.4 or newer.
 
 ## Quick start
 
@@ -49,6 +50,17 @@ Dash action; the mod simply adds the configured output key.
 6. Enter a level and test the binding.
 
 Changes take effect immediately. You do not need to restart the game.
+
+## Eclipse integration
+
+When **Eclipse 1.9.4 or newer** is installed, its menu contains a
+**Key Remapper** tab. From there you can change the enabled state, activity
+scopes, indicator visibility, and indicator position.
+
+The tab also displays the current binding and provides a **Configure Keys**
+button. Key selection opens in the native Geode settings because the Eclipse
+API does not provide a keybind picker. Eclipse is optional; Key Remapper works
+normally without it.
 
 ## Settings
 

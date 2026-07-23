@@ -5,7 +5,7 @@
     },
     "id": "bananchikireal.keyremapper",
     "name": "Key Remapper",
-    "version": "v1.0.0",
+    "version": "v1.6.5",
     "developer": "BANANCHIKIREAL",
     "description": "Press one key to automatically press another, with optional controls for levels, the editor, and menus.",
     "tags": [
@@ -16,6 +16,12 @@
     ],
     "links": {
         "source": "https://github.com/BANANCHIKIREAL/KeyRemapper"
+    },
+    "dependencies": {
+        "eclipse.eclipse-menu": {
+            "version": ">=v1.9.4",
+            "required": false
+        }
     },
     "settings": {
         "enabled": {

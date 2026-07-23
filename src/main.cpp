@@ -1,5 +1,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PlayLayer.hpp>
+#include <Geode/ui/GeodeUI.hpp>
+#include <eclipse.eclipse-menu/include/eclipse.hpp>
 
 #ifdef GEODE_IS_WINDOWS
 #include <Windows.h>
@@ -190,6 +192,77 @@ namespace {
         label->runAction(cocos2d::CCFadeTo::create(0.35f, 160));
     }
 
+    void addEclipseFloatSetting(eclipse::MenuTab const& tab, char const* settingId) {
+        auto mod = Mod::get();
+        auto setting = mod->getSetting(settingId);
+        if (!setting) return;
+
+        auto configId = std::string(mod->expandSpriteName(settingId));
+        auto input = tab.addInputFloat(
+            configId,
+            setting->getDisplayName(),
+            [mod, settingId, configId](float value) {
+                mod->setSettingValue<double>(settingId, value);
+                eclipse::config::set<double>(configId, value);
+            }
+        );
+        input.setDescription(setting->getDescription().value_or(""));
+        input.setFormat("%.0f");
+
+        eclipse::config::set<double>(
+            configId,
+            mod->getSettingValue<double>(settingId)
+        );
+
+        listenForSettingChanges<double>(settingId, [configId](double value) {
+            eclipse::config::set<double>(configId, value);
+        });
+    }
+
+    void addEclipseToggle(eclipse::MenuTab const& tab, char const* settingId) {
+        auto setting = Mod::get()->getSetting(settingId);
+        if (setting) {
+            tab.addModSettingToggle(setting);
+        }
+    }
+
+    void registerEclipseTab() {
+        auto tab = eclipse::MenuTab::find("Key Remapper");
+
+        auto binding = tab.addLabel(describeBinding(
+            Mod::get()->getSettingValue<std::vector<Keybind>>("trigger-key"),
+            Mod::get()->getSettingValue<std::vector<Keybind>>("output-key")
+        ));
+
+        auto updateBinding = [binding] {
+            binding.setText(describeBinding(
+                Mod::get()->getSettingValue<std::vector<Keybind>>("trigger-key"),
+                Mod::get()->getSettingValue<std::vector<Keybind>>("output-key")
+            ));
+        };
+
+        listenForSettingChanges<std::vector<Keybind>>(
+            "trigger-key",
+            [updateBinding](std::vector<Keybind>) { updateBinding(); }
+        );
+        listenForSettingChanges<std::vector<Keybind>>(
+            "output-key",
+            [updateBinding](std::vector<Keybind>) { updateBinding(); }
+        );
+
+        tab.addButton("Configure Keys", [] {
+            openSettingsPopup(Mod::get());
+        }).setDescription("Open the Geode settings to choose the trigger and output keys.");
+
+        addEclipseToggle(tab, "enabled");
+        addEclipseToggle(tab, "scope-gameplay");
+        addEclipseToggle(tab, "scope-editor");
+        addEclipseToggle(tab, "scope-menus");
+        addEclipseToggle(tab, "show-indicator");
+        addEclipseFloatSetting(tab, "indicator-x");
+        addEclipseFloatSetting(tab, "indicator-y");
+    }
+
 }
 
 class $modify(KeyRemapperPlayLayer, PlayLayer) {
@@ -267,4 +340,6 @@ $on_mod(Loaded) {
             flashIndicator();
         }
     );
+
+    Loader::get()->queueInMainThread(registerEclipseTab);
 }

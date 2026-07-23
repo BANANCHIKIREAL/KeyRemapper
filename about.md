@@ -26,6 +26,14 @@ Your original Up key still works normally.
 
 All changes apply immediately.
 
+## Eclipse
+
+If Eclipse 1.9.4 or newer is installed, open its **Key Remapper** tab to
+control the remap and indicator settings. Use **Configure Keys** in that tab
+to open the Geode key picker.
+
+Eclipse is optional.
+
 ## Where it works
 
 You can enable or disable the remap separately in:
