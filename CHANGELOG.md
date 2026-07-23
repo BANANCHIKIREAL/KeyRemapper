@@ -1,3 +1,8 @@
+## v1.6.6
+
+- **Fixed:** shortened the Eclipse indicator position field labels to
+  **KR X** and **KR Y**.
+
 ## v1.6.5
 
 - **New:** added an optional Key Remapper settings tab to Eclipse.

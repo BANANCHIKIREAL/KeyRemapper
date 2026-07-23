@@ -192,12 +192,16 @@ namespace {
         label->runAction(cocos2d::CCFadeTo::create(0.35f, 160));
     }
 
-    void addEclipseFloatSetting(eclipse::MenuTab const& tab, char const* settingId) {
+    void addEclipseFloatSetting(
+        eclipse::MenuTab const& tab,
+        char const* settingId,
+        char const* componentId
+    ) {
         auto mod = Mod::get();
         auto setting = mod->getSetting(settingId);
         if (!setting) return;
 
-        auto configId = std::string(mod->expandSpriteName(settingId));
+        auto configId = std::string(componentId);
         auto input = tab.addInputFloat(
             configId,
             setting->getDisplayName(),
@@ -259,8 +263,8 @@ namespace {
         addEclipseToggle(tab, "scope-editor");
         addEclipseToggle(tab, "scope-menus");
         addEclipseToggle(tab, "show-indicator");
-        addEclipseFloatSetting(tab, "indicator-x");
-        addEclipseFloatSetting(tab, "indicator-y");
+        addEclipseFloatSetting(tab, "indicator-x", "KR X");
+        addEclipseFloatSetting(tab, "indicator-y", "KR Y");
     }
 
 }
