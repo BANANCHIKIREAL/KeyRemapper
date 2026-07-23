@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: geode-sdk/build-geode-mod@main
+        id: build
+        with:
+          sdk: "v5.8.2"
+          target: Win64
+          build-config: Release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: key-remapper-${{ github.sha }}
+          path: ${{ steps.build.outputs.build-output }}
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "${{ github.ref_name }}"
+          "${{ steps.build.outputs.build-output }}"
+          --repo "${{ github.repository }}"
+          --title "Key Remapper ${{ github.ref_name }}"
+          --generate-notes

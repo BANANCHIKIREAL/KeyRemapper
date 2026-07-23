@@ -1,13 +1,19 @@
 {
     "geode": "5.8.2",
     "gd": {
-        "win": "*"
+        "win": "2.2081"
     },
     "id": "bananchikireal.keyremapper",
     "name": "Key Remapper",
-    "version": "v1.6.4",
+    "version": "v1.0.0",
     "developer": "BANANCHIKIREAL",
     "description": "Press one key to automatically press another, with optional controls for levels, the editor, and menus.",
+    "tags": [
+        "utility",
+        "customization",
+        "offline",
+        "joke"
+    ],
     "links": {
         "source": "https://github.com/BANANCHIKIREAL/KeyRemapper"
     },

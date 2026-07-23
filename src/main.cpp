@@ -10,6 +10,8 @@ using namespace geode::prelude;
 namespace {
 
 #ifdef GEODE_IS_WINDOWS
+    UINT activeOutputVk = 0;
+
     UINT keyCodeToVk(cocos2d::enumKeyCodes key) {
         using namespace cocos2d;
         switch (key) {
@@ -159,7 +161,7 @@ namespace {
         )->show();
     }
 
-    constexpr auto INDICATOR_ID = "key-remapper-indicator";
+    constexpr auto INDICATOR_ID = "key-remapper-indicator"_spr;
 
     void repositionIndicator(cocos2d::CCNode* label) {
         auto x = Mod::get()->getSettingValue<double>("indicator-x");
@@ -232,18 +234,37 @@ $on_mod(Loaded) {
 
     listenForKeybindSettingPresses(
         "trigger-key",
-        [](Keybind const&, bool down, bool repeat, double) {
+        [](Keybind const& trigger, bool down, bool repeat, double) {
+#ifdef GEODE_IS_WINDOWS
+            if (!down) {
+                if (activeOutputVk) {
+                    sendKeyEvent(activeOutputVk, false);
+                    activeOutputVk = 0;
+                }
+                return;
+            }
+#endif
+
+            if (repeat) return;
             if (!Mod::get()->getSettingValue<bool>("enabled")) return;
             if (!scopeAllows()) return;
 
             auto outputs = Mod::get()->getSettingValue<std::vector<Keybind>>("output-key");
             if (outputs.empty()) return;
-
-            if (down && !repeat) flashIndicator();
+            if (outputs.front() == trigger) return;
 
 #ifdef GEODE_IS_WINDOWS
-            sendKeyEvent(keyCodeToVk(outputs.front().key), down);
+            auto outputVk = keyCodeToVk(outputs.front().key);
+            if (!outputVk) return;
+
+            if (activeOutputVk) {
+                sendKeyEvent(activeOutputVk, false);
+            }
+            sendKeyEvent(outputVk, true);
+            activeOutputVk = outputVk;
 #endif
+
+            flashIndicator();
         }
     );
 }
