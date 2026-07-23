@@ -1,0 +1,70 @@
+{
+    "geode": "5.8.2",
+    "gd": {
+        "win": "*"
+    },
+    "id": "bananchikireal.keyremapper",
+    "name": "Key Remapper",
+    "version": "v1.6.4",
+    "developer": "BANANCHIKIREAL",
+    "description": "Press one key to automatically press another, with optional controls for levels, the editor, and menus.",
+    "links": {
+        "source": "https://github.com/BANANCHIKIREAL/KeyRemapper"
+    },
+    "settings": {
+        "enabled": {
+            "name": "Enabled",
+            "description": "Turn the remap on or off without clearing your keys.",
+            "type": "bool",
+            "default": true
+        },
+        "trigger-key": {
+            "name": "Trigger Key",
+            "description": "The key you actually press.",
+            "type": "keybind",
+            "default": "Up"
+        },
+        "output-key": {
+            "name": "Also Presses",
+            "description": "The key that gets pressed (and released) together with the trigger key.",
+            "type": "keybind",
+            "default": "Tab"
+        },
+        "scope-gameplay": {
+            "name": "Active in Levels",
+            "description": "Whether the remap works while playing or practicing a level.",
+            "type": "bool",
+            "default": true
+        },
+        "scope-editor": {
+            "name": "Active in Editor",
+            "description": "Whether the remap works in the level editor.",
+            "type": "bool",
+            "default": true
+        },
+        "scope-menus": {
+            "name": "Active in Menus",
+            "description": "Whether the remap works everywhere else (menus, etc).",
+            "type": "bool",
+            "default": true
+        },
+        "show-indicator": {
+            "name": "Show Indicator",
+            "description": "Show the on-screen binding indicator while playing a level.",
+            "type": "bool",
+            "default": true
+        },
+        "indicator-x": {
+            "name": "Indicator X",
+            "description": "Horizontal position of the on-screen binding indicator, in levels.",
+            "type": "float",
+            "default": 50.0
+        },
+        "indicator-y": {
+            "name": "Indicator Y",
+            "description": "Vertical position of the on-screen binding indicator, in levels.",
+            "type": "float",
+            "default": 50.0
+        }
+    }
+}

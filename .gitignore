@@ -1,0 +1,26 @@
+# Build output
+/build/
+
+# Local agent and editor metadata
+/.agents/
+/.codex/
+/.vscode/
+/.idea/
+
+# Generated binaries and packages
+*.dll
+*.exp
+*.geode
+*.ilk
+*.lib
+*.pdb
+
+# CMake-generated files
+/CMakeCache.txt
+/CMakeFiles/
+/cmake-build-*/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
