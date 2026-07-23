@@ -10,9 +10,6 @@ using namespace geode::prelude;
 namespace {
 
 #ifdef GEODE_IS_WINDOWS
-    // Mirrors cocos2d::enumKeyCodes back to a Win32 virtual-key code, so the
-    // mapped key can be sent as a real system keystroke instead of one only
-    // the game's own internal dispatcher can see.
     UINT keyCodeToVk(cocos2d::enumKeyCodes key) {
         using namespace cocos2d;
         switch (key) {
@@ -100,7 +97,6 @@ namespace {
         }
     }
 
-    // These need the extended-key flag or Windows misreports their scan code.
     bool isExtendedVk(UINT vk) {
         switch (vk) {
             case VK_UP: case VK_DOWN: case VK_LEFT: case VK_RIGHT:
@@ -127,7 +123,6 @@ namespace {
     }
 #endif
 
-    // Which parts of the game the remap is allowed to fire in.
     bool scopeAllows() {
         auto gm = GameManager::sharedState();
         if (gm->getEditorLayer()) {
@@ -146,7 +141,6 @@ namespace {
         return fmt::format("{} -> {}", name(trig), name(out));
     }
 
-    // Same key picked for both sides doesn't do anything useful, so flag it.
     void checkConflictAndNotify() {
         auto trig = Mod::get()->getSettingValue<std::vector<Keybind>>("trigger-key");
         auto out = Mod::get()->getSettingValue<std::vector<Keybind>>("output-key");
@@ -179,8 +173,6 @@ namespace {
         label->setString(describeBinding(trig, out).c_str());
     }
 
-    // Looks the indicator up fresh every time instead of caching a pointer,
-    // so there's nothing that can dangle across scene/level transitions.
     cocos2d::CCLabelBMFont* findIndicator() {
         auto pl = GameManager::sharedState()->getPlayLayer();
         if (!pl || !pl->m_uiLayer) return nullptr;
