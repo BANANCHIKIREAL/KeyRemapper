@@ -36,9 +36,9 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create "${{ github.ref_name }}"
-          "${{ steps.build.outputs.build-output }}"
-          --repo "${{ github.repository }}"
-          --title "Key Remapper ${{ github.ref_name }}"
-          --generate-notes
+        run: |
+          $package = Get-ChildItem "${{ steps.build.outputs.build-output }}" -Filter "*.geode" -File -Recurse | Select-Object -First 1
+          if (-not $package) {
+            throw "The build did not produce a .geode package."
+          }
+          gh release create "${{ github.ref_name }}" $package.FullName --repo "${{ github.repository }}" --title "Key Remapper ${{ github.ref_name }}" --generate-notes
