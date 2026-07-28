@@ -1,3 +1,16 @@
+## v1.9.0
+
+- **New:** added a configurable minimum percentage for the death key action.
+- **Changed:** the death key now presses only when the player dies after
+  reaching the selected minimum percentage.
+- **New:** added a clear **Death After %** field and a live threshold summary to
+  the Eclipse tab.
+- **New:** added an optional Key Remapper category to QOLMod **2.8.6** or newer.
+- **New:** QOLMod can control the main switch, automatic actions, target
+  percentages, level scope, and indicator visibility.
+- **New:** added a **Choose Keys & More** button to the QOLMod category for
+  settings that require Geode's key picker.
+
 ## v1.8.0
 
 - **New:** added an optional key press when the player dies.

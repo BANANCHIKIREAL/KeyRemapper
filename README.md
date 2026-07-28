@@ -41,6 +41,7 @@ Dash action; the mod simply adds the configured output key.
 - An optional automatic key press at a selected percentage from 1% to 100%.
 - Optional automatic key presses on death and on level completion.
 - An optional settings tab inside Eclipse 1.9.4 or newer.
+- An optional settings category inside QOLMod 2.8.6 or newer.
 
 ## Quick start
 
@@ -64,6 +65,16 @@ actions. Its **Choose All Keys** button opens the native Geode settings because
 the Eclipse API does not provide a keybind picker. Eclipse is optional; Key
 Remapper works normally without it.
 
+## QOLMod integration
+
+When **QOLMod 2.8.6 or newer** is installed, its menu contains a dedicated
+**Key Remapper** category. It includes the main switch, automatic-action
+switches, **Target %**, **Death After %**, level scope, and indicator
+visibility.
+
+Use **Choose Keys & More** in that category to open the native Geode settings
+for key selection and the remaining options. QOLMod is optional.
+
 ## Settings
 
 | Setting | Default | Description |
@@ -74,7 +85,8 @@ Remapper works normally without it.
 | **Press Key at Percent** | Off | Enables the automatic percentage action. |
 | **Target Percent** | 50 | Selects the activation point from 1% to 100%. |
 | **Percent Key** | Tab | Selects the key pressed at the target percentage. |
-| **Press Key on Death** | Off | Enables an automatic key press when the player dies. |
+| **Press Key on Death** | Off | Enables an automatic key press when the player dies after the minimum percentage. |
+| **Death Minimum Percent** | 50 | Sets the minimum progress required before the death action can run. |
 | **Death Key** | Tab | Selects the key pressed on death. |
 | **Press Key on Level Complete** | Off | Enables an automatic key press when a level is completed. |
 | **Level Complete Key** | Tab | Selects the key pressed on level completion. |
@@ -96,8 +108,10 @@ The action is armed again when the level attempt resets. It follows the main
 
 ## Death and completion actions
 
-Enable **Press Key on Death** and select **Death Key** to press and release
-that key once when the player dies.
+Enable **Press Key on Death**, select **Death Minimum Percent**, and choose
+**Death Key**. The key is pressed and released only when the player dies at or
+after the selected percentage. For example, a value of **50** ignores deaths
+before 50%.
 
 Enable **Press Key on Level Complete** and select **Level Complete Key** to
 press and release that key once when the level is completed.

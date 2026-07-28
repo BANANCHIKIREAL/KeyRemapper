@@ -34,8 +34,9 @@ selected percentage.
 
 ## Press a key on death or completion
 
-Enable **Press Key on Death** and choose **Death Key** to press a key when the
-player dies.
+Enable **Press Key on Death**, choose **Death Minimum Percent**, and select
+**Death Key**. The key only presses when the player dies after reaching the
+selected percentage.
 
 Enable **Press Key on Level Complete** and choose **Level Complete Key** to
 press a key when the level is completed.
@@ -47,6 +48,14 @@ control the remap, automatic actions, and indicator settings. Use **Choose All
 Keys** in that tab to open the Geode key picker.
 
 Eclipse is optional.
+
+## QOLMod
+
+If QOLMod 2.8.6 or newer is installed, open its **Key Remapper** category to
+control the automatic actions, **Target %**, **Death After %**, level scope,
+and indicator. Use **Choose Keys & More** to select keys in Geode settings.
+
+QOLMod is optional.
 
 ## Where it works
 

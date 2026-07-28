@@ -3,7 +3,9 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/ui/GeodeUI.hpp>
+#include <Geode/ui/TextInput.hpp>
 #include <eclipse.eclipse-menu/include/eclipse.hpp>
+#include "QOLModCategory.hpp"
 
 #ifdef GEODE_IS_WINDOWS
 #include <Windows.h>
@@ -179,6 +181,16 @@ namespace {
         );
     }
 
+    std::string describeDeathAction() {
+        auto minimumPercent = Mod::get()->getSettingValue<int>("death-min-percent");
+        return fmt::format(
+            "On death after {}%: {} ({})",
+            minimumPercent,
+            configuredKeyName("death-action-key"),
+            enabledState("death-action-enabled")
+        );
+    }
+
     bool automaticActionAllowed(char const* enabledSettingId) {
         return
             Mod::get()->getSettingValue<bool>("enabled") &&
@@ -323,6 +335,144 @@ namespace {
         });
     }
 
+    class QOLSettingsPanel : public cocos2d::CCNode {
+    protected:
+        cocos2d::CCMenu* m_controls = nullptr;
+
+        void addRowLabel(char const* text, float y) {
+            auto label = cocos2d::CCLabelBMFont::create(text, "bigFont.fnt");
+            label->setAnchorPoint(ccp(0.f, 0.5f));
+            label->setPosition(ccp(15.f, y));
+            label->limitLabelWidth(205.f, 0.38f, 0.2f);
+            addChild(label);
+        }
+
+        void addToggleRow(char const* text, char const* settingId, float y) {
+            addRowLabel(text, y);
+
+            auto toggle = CCMenuItemToggler::createWithStandardSprites(
+                this,
+                menu_selector(QOLSettingsPanel::onToggle),
+                0.45f
+            );
+            toggle->setID(settingId);
+            toggle->toggle(Mod::get()->getSettingValue<bool>(settingId));
+            toggle->setPosition(ccp(318.f, y));
+            m_controls->addChild(toggle);
+        }
+
+        void addPercentInput(char const* settingId, float y) {
+            auto input = TextInput::create(62.f, "1-100");
+            input->setCommonFilter(CommonFilter::Uint);
+            input->setMaxCharCount(3);
+            input->setScale(0.75f);
+            input->setPosition(ccp(260.f, y));
+            input->setString(fmt::format(
+                "{}",
+                Mod::get()->getSettingValue<int>(settingId)
+            ));
+            input->setCallback([settingId, input](std::string const& value) {
+                auto parsed = geode::utils::numFromString<int>(value);
+                if (!parsed) return;
+
+                auto percent = std::clamp(parsed.unwrap(), 1, 100);
+                Mod::get()->setSettingValue<int>(settingId, percent);
+
+                auto normalized = fmt::format("{}", percent);
+                if (normalized != value) {
+                    input->setString(normalized, false);
+                }
+            });
+            addChild(input);
+        }
+
+        void onToggle(cocos2d::CCObject* sender) {
+            auto toggle = static_cast<CCMenuItemToggler*>(sender);
+            Mod::get()->setSettingValue<bool>(
+                toggle->getID(),
+                !toggle->isToggled()
+            );
+        }
+
+        void onOpenSettings(cocos2d::CCObject*) {
+            openSettingsPopup(Mod::get());
+        }
+
+        bool init() {
+            if (!cocos2d::CCNode::init()) return false;
+
+            setContentSize(ccp(340.f, 260.f));
+            setAnchorPoint(ccp(0.5f, 0.5f));
+            ignoreAnchorPointForPosition(false);
+
+            m_controls = cocos2d::CCMenu::create();
+            m_controls->setPosition(ccp(0.f, 0.f));
+            m_controls->setContentSize(getContentSize());
+            addChild(m_controls);
+
+            auto title = cocos2d::CCLabelBMFont::create(
+                "Key Remapper Settings",
+                "goldFont.fnt"
+            );
+            title->setScale(0.55f);
+            title->setPosition(ccp(170.f, 242.f));
+            addChild(title);
+
+            addToggleRow("Enable Key Remapper", "enabled", 210.f);
+            addToggleRow("Press at Target %", "auto-percent-enabled", 178.f);
+            addPercentInput("auto-percent", 178.f);
+            addToggleRow("Press on Death After %", "death-action-enabled", 146.f);
+            addPercentInput("death-min-percent", 146.f);
+            addToggleRow(
+                "Press on Level Complete",
+                "complete-action-enabled",
+                114.f
+            );
+            addToggleRow("Active in Levels", "scope-gameplay", 82.f);
+            addToggleRow("Show Indicator", "show-indicator", 50.f);
+
+            auto buttonSprite = ButtonSprite::create("Choose Keys & More");
+            buttonSprite->setScale(0.65f);
+            auto button = CCMenuItemSpriteExtra::create(
+                buttonSprite,
+                this,
+                menu_selector(QOLSettingsPanel::onOpenSettings)
+            );
+            button->setPosition(ccp(170.f, 20.f));
+            m_controls->addChild(button);
+
+            return true;
+        }
+
+    public:
+        static QOLSettingsPanel* create() {
+            auto panel = new QOLSettingsPanel();
+            if (panel && panel->init()) {
+                panel->autorelease();
+                return panel;
+            }
+
+            CC_SAFE_DELETE(panel);
+            return nullptr;
+        }
+    };
+
+    void registerQOLModCategory() {
+        if (!Loader::get()->isModLoaded("thesillydoggo.qolmod")) return;
+
+        qolmod::ext::CategoryData category;
+        category.displayName = "Key Remapper";
+        category.categoryID = "bananchikireal.keyremapper";
+        category.customFunc = [](cocos2d::CCMenu* menu) {
+            auto panel = QOLSettingsPanel::create();
+            if (!panel) return;
+
+            panel->setPosition(menu->getContentSize() / 2.f);
+            menu->addChild(panel);
+        };
+        qolmod::ext::addCustomCategory(std::move(category));
+    }
+
     void registerEclipseTab() {
         auto tab = eclipse::MenuTab::find("Key Remapper");
 
@@ -378,23 +528,19 @@ namespace {
             [updatePercentAction](std::vector<Keybind>) { updatePercentAction(); }
         );
 
-        auto deathAction = tab.addLabel(describeEventAction(
-            "On death",
-            "death-action-enabled",
-            "death-action-key"
-        ));
+        auto deathAction = tab.addLabel(describeDeathAction());
 
         auto updateDeathAction = [deathAction] {
-            deathAction.setText(describeEventAction(
-                "On death",
-                "death-action-enabled",
-                "death-action-key"
-            ));
+            deathAction.setText(describeDeathAction());
         };
 
         listenForSettingChanges<bool>(
             "death-action-enabled",
             [updateDeathAction](bool) { updateDeathAction(); }
+        );
+        listenForSettingChanges<int>(
+            "death-min-percent",
+            [updateDeathAction](int) { updateDeathAction(); }
         );
         listenForSettingChanges<std::vector<Keybind>>(
             "death-action-key",
@@ -434,6 +580,7 @@ namespace {
         addEclipseToggle(tab, "auto-percent-enabled");
         addEclipseIntSetting(tab, "auto-percent", "Target %", 1, 100);
         addEclipseToggle(tab, "death-action-enabled");
+        addEclipseIntSetting(tab, "death-min-percent", "Death After %", 1, 100);
         addEclipseToggle(tab, "complete-action-enabled");
 
         tab.addLabel("Where It Works");
@@ -517,8 +664,10 @@ class $modify(KeyRemapperPlayLayer, PlayLayer) {
     }
 
     void destroyPlayer(PlayerObject* player, GameObject* object) {
+        auto minimumPercent = Mod::get()->getSettingValue<int>("death-min-percent");
         if (
             !m_fields->deathKeyPressed &&
+            getCurrentPercent() >= static_cast<float>(minimumPercent) &&
             automaticActionAllowed("death-action-enabled")
         ) {
 #ifdef GEODE_IS_WINDOWS
@@ -602,5 +751,6 @@ $on_mod(Loaded) {
         }
     );
 
+    registerQOLModCategory();
     Loader::get()->queueInMainThread(registerEclipseTab);
 }

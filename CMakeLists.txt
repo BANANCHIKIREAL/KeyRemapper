@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(KeyRemapper VERSION 1.8.0)
+project(KeyRemapper VERSION 1.9.0)
 
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to it!")

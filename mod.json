@@ -5,7 +5,7 @@
     },
     "id": "bananchikireal.keyremapper",
     "name": "Key Remapper",
-    "version": "v1.8.0",
+    "version": "v1.9.0",
     "developer": "BANANCHIKIREAL",
     "description": "Remap keys and automatically press selected keys at a percentage, on death, or on level completion.",
     "tags": [
@@ -20,6 +20,10 @@
     "dependencies": {
         "eclipse.eclipse-menu": {
             "version": ">=v1.9.4",
+            "required": false
+        },
+        "thesillydoggo.qolmod": {
+            "version": ">=v2.8.6",
             "required": false
         }
     },
@@ -74,13 +78,21 @@
         },
         "death-action-enabled": {
             "name": "Press Key on Death",
-            "description": "Automatically press the selected key once when the player dies.",
+            "description": "Press the selected key when the player dies after reaching the minimum percentage.",
             "type": "bool",
             "default": false
         },
+        "death-min-percent": {
+            "name": "Death Minimum Percent",
+            "description": "The death key only presses if the player reached at least this percentage.",
+            "type": "int",
+            "default": 50,
+            "min": 1,
+            "max": 100
+        },
         "death-action-key": {
             "name": "Death Key",
-            "description": "The key pressed automatically when the player dies.",
+            "description": "The key pressed when the player dies after reaching the minimum percentage.",
             "type": "keybind",
             "default": "Tab"
         },
