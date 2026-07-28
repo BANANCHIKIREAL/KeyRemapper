@@ -38,6 +38,7 @@ Dash action; the mod simply adds the configured output key.
 - A short indicator flash whenever the remap fires.
 - Conflict warnings when both sides use the same key.
 - A master switch that disables remapping without clearing your configuration.
+- An optional automatic key press at a selected percentage from 1% to 100%.
 - An optional settings tab inside Eclipse 1.9.4 or newer.
 
 ## Quick start
@@ -55,12 +56,12 @@ Changes take effect immediately. You do not need to restart the game.
 
 When **Eclipse 1.9.4 or newer** is installed, its menu contains a
 **Key Remapper** tab. From there you can change the enabled state, activity
-scopes, indicator visibility, and indicator position.
+scopes, percentage action, indicator visibility, and indicator position.
 
-The tab also displays the current binding and provides a **Configure Keys**
-button. Key selection opens in the native Geode settings because the Eclipse
-API does not provide a keybind picker. Eclipse is optional; Key Remapper works
-normally without it.
+The tab displays the current remap and percentage action. Its **Configure
+Keys** button opens the native Geode settings because the Eclipse API does not
+provide a keybind picker. Eclipse is optional; Key Remapper works normally
+without it.
 
 ## Settings
 
@@ -69,12 +70,24 @@ normally without it.
 | **Enabled** | On | Enables or disables the remap without resetting anything. |
 | **Trigger Key** | Up | The physical key that activates the remap. |
 | **Also Presses** | Tab | The additional key sent by the mod. |
+| **Press Key at Percent** | Off | Enables the automatic percentage action. |
+| **Target Percent** | 50 | Selects the activation point from 1% to 100%. |
+| **Percent Key** | Tab | Selects the key pressed at the target percentage. |
 | **Active in Levels** | On | Allows remapping in normal and practice gameplay. |
 | **Active in Editor** | On | Allows remapping inside the level editor. |
 | **Active in Menus** | On | Allows remapping everywhere outside levels and the editor. |
 | **Show Indicator** | On | Shows the current binding while playing a level. |
 | **Indicator X** | 50 | Sets the indicator's horizontal screen position. |
 | **Indicator Y** | 50 | Sets the indicator's vertical screen position. |
+
+## Percentage action
+
+Enable **Press Key at Percent**, select a value from **1** to **100**, and
+choose **Percent Key**. When the current attempt crosses that percentage, the
+selected key is pressed and released once.
+
+The action is armed again when the level attempt resets. It follows the main
+**Enabled** and **Active in Levels** settings.
 
 ## Indicator
 

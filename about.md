@@ -26,11 +26,17 @@ Your original Up key still works normally.
 
 All changes apply immediately.
 
+## Press a key at a percentage
+
+Enable **Press Key at Percent**, select a target from **1%** to **100%**, and
+choose **Percent Key**. The key is pressed once when the attempt crosses the
+selected percentage.
+
 ## Eclipse
 
 If Eclipse 1.9.4 or newer is installed, open its **Key Remapper** tab to
-control the remap and indicator settings. Use **Configure Keys** in that tab
-to open the Geode key picker.
+control the remap, percentage action, and indicator settings. Use **Configure
+Keys** in that tab to open the Geode key picker.
 
 Eclipse is optional.
 

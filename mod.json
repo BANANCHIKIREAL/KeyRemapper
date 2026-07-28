@@ -5,9 +5,9 @@
     },
     "id": "bananchikireal.keyremapper",
     "name": "Key Remapper",
-    "version": "v1.6.6",
+    "version": "v1.7.0",
     "developer": "BANANCHIKIREAL",
-    "description": "Press one key to automatically press another, with optional controls for levels, the editor, and menus.",
+    "description": "Remap one key to another or press a selected key automatically at a chosen level percentage.",
     "tags": [
         "utility",
         "customization",
@@ -39,6 +39,26 @@
         "output-key": {
             "name": "Also Presses",
             "description": "The key that gets pressed (and released) together with the trigger key.",
+            "type": "keybind",
+            "default": "Tab"
+        },
+        "auto-percent-enabled": {
+            "name": "Press Key at Percent",
+            "description": "Automatically press the selected key once when the target percentage is reached.",
+            "type": "bool",
+            "default": false
+        },
+        "auto-percent": {
+            "name": "Target Percent",
+            "description": "The level percentage that triggers the automatic key press.",
+            "type": "int",
+            "default": 50,
+            "min": 1,
+            "max": 100
+        },
+        "auto-percent-key": {
+            "name": "Percent Key",
+            "description": "The key pressed automatically when the target percentage is reached.",
             "type": "keybind",
             "default": "Tab"
         },

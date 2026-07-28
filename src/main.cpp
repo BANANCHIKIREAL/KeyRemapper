@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cmath>
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/ui/GeodeUI.hpp>
@@ -145,6 +147,22 @@ namespace {
         return fmt::format("{} -> {}", name(trig), name(out));
     }
 
+    std::string describePercentAction() {
+        auto percent = Mod::get()->getSettingValue<int>("auto-percent");
+        auto keys = Mod::get()->getSettingValue<std::vector<Keybind>>("auto-percent-key");
+        auto keyName = keys.empty() ? std::string("(none)") : keys.front().toString();
+        return fmt::format("{}% -> {}", percent, keyName);
+    }
+
+#ifdef GEODE_IS_WINDOWS
+    void tapKey(cocos2d::enumKeyCodes key) {
+        auto vk = keyCodeToVk(key);
+        if (!vk) return;
+        sendKeyEvent(vk, true);
+        sendKeyEvent(vk, false);
+    }
+#endif
+
     void checkConflictAndNotify() {
         auto trig = Mod::get()->getSettingValue<std::vector<Keybind>>("trigger-key");
         auto out = Mod::get()->getSettingValue<std::vector<Keybind>>("output-key");
@@ -230,6 +248,43 @@ namespace {
         }
     }
 
+    void addEclipseIntSetting(
+        eclipse::MenuTab const& tab,
+        char const* settingId,
+        char const* componentId,
+        int minValue,
+        int maxValue
+    ) {
+        auto mod = Mod::get();
+        auto setting = mod->getSetting(settingId);
+        if (!setting) return;
+
+        auto configId = std::string(componentId);
+        auto input = tab.addInputFloat(
+            configId,
+            setting->getDisplayName(),
+            [mod, settingId, configId, minValue, maxValue](float value) {
+                auto rounded = static_cast<int>(std::lround(value));
+                auto clamped = std::clamp(rounded, minValue, maxValue);
+                mod->setSettingValue<int>(settingId, clamped);
+                eclipse::config::set<double>(configId, clamped);
+            }
+        );
+        input.setDescription(setting->getDescription().value_or(""));
+        input.setMinValue(static_cast<float>(minValue));
+        input.setMaxValue(static_cast<float>(maxValue));
+        input.setFormat("%.0f");
+
+        eclipse::config::set<double>(
+            configId,
+            mod->getSettingValue<int>(settingId)
+        );
+
+        listenForSettingChanges<int>(settingId, [configId](int value) {
+            eclipse::config::set<double>(configId, value);
+        });
+    }
+
     void registerEclipseTab() {
         auto tab = eclipse::MenuTab::find("Key Remapper");
 
@@ -254,11 +309,34 @@ namespace {
             [updateBinding](std::vector<Keybind>) { updateBinding(); }
         );
 
+        auto percentAction = tab.addLabel(fmt::format(
+            "Auto: {}",
+            describePercentAction()
+        ));
+
+        auto updatePercentAction = [percentAction] {
+            percentAction.setText(fmt::format(
+                "Auto: {}",
+                describePercentAction()
+            ));
+        };
+
+        listenForSettingChanges<int>(
+            "auto-percent",
+            [updatePercentAction](int) { updatePercentAction(); }
+        );
+        listenForSettingChanges<std::vector<Keybind>>(
+            "auto-percent-key",
+            [updatePercentAction](std::vector<Keybind>) { updatePercentAction(); }
+        );
+
         tab.addButton("Configure Keys", [] {
             openSettingsPopup(Mod::get());
-        }).setDescription("Open the Geode settings to choose the trigger and output keys.");
+        }).setDescription("Open the Geode settings to choose all remap keys.");
 
         addEclipseToggle(tab, "enabled");
+        addEclipseToggle(tab, "auto-percent-enabled");
+        addEclipseIntSetting(tab, "auto-percent", "KR %", 1, 100);
         addEclipseToggle(tab, "scope-gameplay");
         addEclipseToggle(tab, "scope-editor");
         addEclipseToggle(tab, "scope-menus");
@@ -270,8 +348,16 @@ namespace {
 }
 
 class $modify(KeyRemapperPlayLayer, PlayLayer) {
+    struct Fields {
+        float previousPercent = 0.f;
+        bool percentKeyPressed = false;
+    };
+
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
         if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
+
+        m_fields->previousPercent = getCurrentPercent();
+        m_fields->percentKeyPressed = false;
 
         if (m_uiLayer) {
             auto label = CCLabelBMFont::create("", "chatFont.fnt");
@@ -287,6 +373,43 @@ class $modify(KeyRemapperPlayLayer, PlayLayer) {
         }
 
         return true;
+    }
+
+    void resetLevel() {
+        PlayLayer::resetLevel();
+        m_fields->previousPercent = getCurrentPercent();
+        m_fields->percentKeyPressed = false;
+    }
+
+    void postUpdate(float dt) {
+        PlayLayer::postUpdate(dt);
+
+        auto currentPercent = getCurrentPercent();
+        auto targetPercent = Mod::get()->getSettingValue<int>("auto-percent");
+
+        auto crossedTarget =
+            m_fields->previousPercent < static_cast<float>(targetPercent) &&
+            currentPercent >= static_cast<float>(targetPercent);
+
+        if (
+            crossedTarget &&
+            !m_fields->percentKeyPressed &&
+            Mod::get()->getSettingValue<bool>("enabled") &&
+            Mod::get()->getSettingValue<bool>("scope-gameplay") &&
+            Mod::get()->getSettingValue<bool>("auto-percent-enabled")
+        ) {
+            auto keys = Mod::get()->getSettingValue<std::vector<Keybind>>(
+                "auto-percent-key"
+            );
+            if (!keys.empty()) {
+#ifdef GEODE_IS_WINDOWS
+                tapKey(keys.front().key);
+#endif
+                m_fields->percentKeyPressed = true;
+            }
+        }
+
+        m_fields->previousPercent = currentPercent;
     }
 };
 

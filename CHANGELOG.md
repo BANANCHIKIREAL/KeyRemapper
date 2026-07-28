@@ -1,3 +1,13 @@
+## v1.7.0
+
+- **New:** added an optional automatic key press at a chosen level percentage.
+- **New:** added a target percentage setting from **1%** to **100%**.
+- **New:** added a configurable key for the percentage action.
+- **New:** added the percentage toggle, target field, and action summary to
+  the Eclipse Key Remapper tab.
+- **Changed:** the percentage action fires once after crossing the target and
+  resets with the level attempt.
+
 ## v1.6.6
 
 - **Fixed:** shortened the Eclipse indicator position field labels to
