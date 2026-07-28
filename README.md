@@ -39,6 +39,7 @@ Dash action; the mod simply adds the configured output key.
 - Conflict warnings when both sides use the same key.
 - A master switch that disables remapping without clearing your configuration.
 - An optional automatic key press at a selected percentage from 1% to 100%.
+- Optional automatic key presses on death and on level completion.
 - An optional settings tab inside Eclipse 1.9.4 or newer.
 
 ## Quick start
@@ -55,24 +56,28 @@ Changes take effect immediately. You do not need to restart the game.
 ## Eclipse integration
 
 When **Eclipse 1.9.4 or newer** is installed, its menu contains a
-**Key Remapper** tab. From there you can change the enabled state, activity
-scopes, percentage action, indicator visibility, and indicator position.
+**Key Remapper** tab. Its clearly named sections cover the main remap,
+automatic actions, activity scopes, and the on-screen indicator.
 
-The tab displays the current remap and percentage action. Its **Configure
-Keys** button opens the native Geode settings because the Eclipse API does not
-provide a keybind picker. Eclipse is optional; Key Remapper works normally
-without it.
+The tab displays live summaries for the percentage, death, and level-complete
+actions. Its **Choose All Keys** button opens the native Geode settings because
+the Eclipse API does not provide a keybind picker. Eclipse is optional; Key
+Remapper works normally without it.
 
 ## Settings
 
 | Setting | Default | Description |
 | --- | --- | --- |
-| **Enabled** | On | Enables or disables the remap without resetting anything. |
+| **Enable Key Remapper** | On | Master switch for the remap and all automatic actions. |
 | **Trigger Key** | Up | The physical key that activates the remap. |
 | **Also Presses** | Tab | The additional key sent by the mod. |
 | **Press Key at Percent** | Off | Enables the automatic percentage action. |
 | **Target Percent** | 50 | Selects the activation point from 1% to 100%. |
 | **Percent Key** | Tab | Selects the key pressed at the target percentage. |
+| **Press Key on Death** | Off | Enables an automatic key press when the player dies. |
+| **Death Key** | Tab | Selects the key pressed on death. |
+| **Press Key on Level Complete** | Off | Enables an automatic key press when a level is completed. |
+| **Level Complete Key** | Tab | Selects the key pressed on level completion. |
 | **Active in Levels** | On | Allows remapping in normal and practice gameplay. |
 | **Active in Editor** | On | Allows remapping inside the level editor. |
 | **Active in Menus** | On | Allows remapping everywhere outside levels and the editor. |
@@ -87,7 +92,18 @@ choose **Percent Key**. When the current attempt crosses that percentage, the
 selected key is pressed and released once.
 
 The action is armed again when the level attempt resets. It follows the main
-**Enabled** and **Active in Levels** settings.
+**Enable Key Remapper** and **Active in Levels** settings.
+
+## Death and completion actions
+
+Enable **Press Key on Death** and select **Death Key** to press and release
+that key once when the player dies.
+
+Enable **Press Key on Level Complete** and select **Level Complete Key** to
+press and release that key once when the level is completed.
+
+Both actions follow **Enable Key Remapper** and **Active in Levels**. The death
+action is armed again when the next attempt starts.
 
 ## Indicator
 
@@ -119,7 +135,7 @@ option while a level is open updates the indicator immediately.
 
 ### The output key is not being pressed
 
-- Make sure **Enabled** is turned on.
+- Make sure **Enable Key Remapper** is turned on.
 - Check that the current area is enabled under **Active in Levels**,
   **Active in Editor**, or **Active in Menus**.
 - Confirm that **Also Presses** is not empty.
@@ -141,7 +157,7 @@ sending a key to itself does not create a useful remap.
 - Key Remapper adds an output press; it does not suppress the original input.
 - The output is sent as a Windows system key event.
 - Disabling the indicator does not disable the remap.
-- Disabling the mod's **Enabled** setting keeps all other settings saved.
+- Disabling **Enable Key Remapper** keeps all other settings saved.
 
 ---
 

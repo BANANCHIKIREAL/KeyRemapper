@@ -32,10 +32,18 @@ Enable **Press Key at Percent**, select a target from **1%** to **100%**, and
 choose **Percent Key**. The key is pressed once when the attempt crosses the
 selected percentage.
 
+## Press a key on death or completion
+
+Enable **Press Key on Death** and choose **Death Key** to press a key when the
+player dies.
+
+Enable **Press Key on Level Complete** and choose **Level Complete Key** to
+press a key when the level is completed.
+
 ## Eclipse
 
 If Eclipse 1.9.4 or newer is installed, open its **Key Remapper** tab to
-control the remap, percentage action, and indicator settings. Use **Configure
+control the remap, automatic actions, and indicator settings. Use **Choose All
 Keys** in that tab to open the Geode key picker.
 
 Eclipse is optional.
@@ -61,7 +69,8 @@ The indicator flashes when the remap activates.
 
 ## Important
 
-* **Enabled** turns remapping on or off without deleting your settings.
+* **Enable Key Remapper** turns all actions on or off without deleting your
+  settings.
 * The trigger key is not blocked; the output key is added to it.
 * Do not set both keys to the same key.
 * This mod is made for Windows.

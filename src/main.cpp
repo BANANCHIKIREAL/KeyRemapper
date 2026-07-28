@@ -147,19 +147,57 @@ namespace {
         return fmt::format("{} -> {}", name(trig), name(out));
     }
 
+    std::string configuredKeyName(char const* settingId) {
+        auto keys = Mod::get()->getSettingValue<std::vector<Keybind>>(settingId);
+        return keys.empty() ? std::string("No key selected") : keys.front().toString();
+    }
+
+    std::string enabledState(char const* settingId) {
+        return Mod::get()->getSettingValue<bool>(settingId) ? "On" : "Off";
+    }
+
     std::string describePercentAction() {
         auto percent = Mod::get()->getSettingValue<int>("auto-percent");
-        auto keys = Mod::get()->getSettingValue<std::vector<Keybind>>("auto-percent-key");
-        auto keyName = keys.empty() ? std::string("(none)") : keys.front().toString();
-        return fmt::format("{}% -> {}", percent, keyName);
+        return fmt::format(
+            "At {}%: {} ({})",
+            percent,
+            configuredKeyName("auto-percent-key"),
+            enabledState("auto-percent-enabled")
+        );
+    }
+
+    std::string describeEventAction(
+        char const* label,
+        char const* enabledSettingId,
+        char const* keySettingId
+    ) {
+        return fmt::format(
+            "{}: {} ({})",
+            label,
+            configuredKeyName(keySettingId),
+            enabledState(enabledSettingId)
+        );
+    }
+
+    bool automaticActionAllowed(char const* enabledSettingId) {
+        return
+            Mod::get()->getSettingValue<bool>("enabled") &&
+            Mod::get()->getSettingValue<bool>("scope-gameplay") &&
+            Mod::get()->getSettingValue<bool>(enabledSettingId);
     }
 
 #ifdef GEODE_IS_WINDOWS
-    void tapKey(cocos2d::enumKeyCodes key) {
+    bool tapKey(cocos2d::enumKeyCodes key) {
         auto vk = keyCodeToVk(key);
-        if (!vk) return;
+        if (!vk) return false;
         sendKeyEvent(vk, true);
         sendKeyEvent(vk, false);
+        return true;
+    }
+
+    bool tapConfiguredKey(char const* settingId) {
+        auto keys = Mod::get()->getSettingValue<std::vector<Keybind>>(settingId);
+        return !keys.empty() && tapKey(keys.front().key);
     }
 #endif
 
@@ -288,15 +326,23 @@ namespace {
     void registerEclipseTab() {
         auto tab = eclipse::MenuTab::find("Key Remapper");
 
-        auto binding = tab.addLabel(describeBinding(
-            Mod::get()->getSettingValue<std::vector<Keybind>>("trigger-key"),
-            Mod::get()->getSettingValue<std::vector<Keybind>>("output-key")
+        tab.addLabel("Main Key Remap");
+
+        auto binding = tab.addLabel(fmt::format(
+            "Current: {}",
+            describeBinding(
+                Mod::get()->getSettingValue<std::vector<Keybind>>("trigger-key"),
+                Mod::get()->getSettingValue<std::vector<Keybind>>("output-key")
+            )
         ));
 
         auto updateBinding = [binding] {
-            binding.setText(describeBinding(
-                Mod::get()->getSettingValue<std::vector<Keybind>>("trigger-key"),
-                Mod::get()->getSettingValue<std::vector<Keybind>>("output-key")
+            binding.setText(fmt::format(
+                "Current: {}",
+                describeBinding(
+                    Mod::get()->getSettingValue<std::vector<Keybind>>("trigger-key"),
+                    Mod::get()->getSettingValue<std::vector<Keybind>>("output-key")
+                )
             ));
         };
 
@@ -309,18 +355,20 @@ namespace {
             [updateBinding](std::vector<Keybind>) { updateBinding(); }
         );
 
-        auto percentAction = tab.addLabel(fmt::format(
-            "Auto: {}",
-            describePercentAction()
-        ));
+        addEclipseToggle(tab, "enabled");
+
+        tab.addLabel("Automatic Key Presses");
+
+        auto percentAction = tab.addLabel(describePercentAction());
 
         auto updatePercentAction = [percentAction] {
-            percentAction.setText(fmt::format(
-                "Auto: {}",
-                describePercentAction()
-            ));
+            percentAction.setText(describePercentAction());
         };
 
+        listenForSettingChanges<bool>(
+            "auto-percent-enabled",
+            [updatePercentAction](bool) { updatePercentAction(); }
+        );
         listenForSettingChanges<int>(
             "auto-percent",
             [updatePercentAction](int) { updatePercentAction(); }
@@ -330,19 +378,75 @@ namespace {
             [updatePercentAction](std::vector<Keybind>) { updatePercentAction(); }
         );
 
-        tab.addButton("Configure Keys", [] {
-            openSettingsPopup(Mod::get());
-        }).setDescription("Open the Geode settings to choose all remap keys.");
+        auto deathAction = tab.addLabel(describeEventAction(
+            "On death",
+            "death-action-enabled",
+            "death-action-key"
+        ));
 
-        addEclipseToggle(tab, "enabled");
+        auto updateDeathAction = [deathAction] {
+            deathAction.setText(describeEventAction(
+                "On death",
+                "death-action-enabled",
+                "death-action-key"
+            ));
+        };
+
+        listenForSettingChanges<bool>(
+            "death-action-enabled",
+            [updateDeathAction](bool) { updateDeathAction(); }
+        );
+        listenForSettingChanges<std::vector<Keybind>>(
+            "death-action-key",
+            [updateDeathAction](std::vector<Keybind>) { updateDeathAction(); }
+        );
+
+        auto completeAction = tab.addLabel(describeEventAction(
+            "On level complete",
+            "complete-action-enabled",
+            "complete-action-key"
+        ));
+
+        auto updateCompleteAction = [completeAction] {
+            completeAction.setText(describeEventAction(
+                "On level complete",
+                "complete-action-enabled",
+                "complete-action-key"
+            ));
+        };
+
+        listenForSettingChanges<bool>(
+            "complete-action-enabled",
+            [updateCompleteAction](bool) { updateCompleteAction(); }
+        );
+        listenForSettingChanges<std::vector<Keybind>>(
+            "complete-action-key",
+            [updateCompleteAction](std::vector<Keybind>) { updateCompleteAction(); }
+        );
+
+        tab.addButton("Choose All Keys", [] {
+            openSettingsPopup(Mod::get());
+        }).setDescription(
+            "Open the Geode settings to choose the remap, percentage, death, "
+            "and level-complete keys."
+        );
+
         addEclipseToggle(tab, "auto-percent-enabled");
-        addEclipseIntSetting(tab, "auto-percent", "KR %", 1, 100);
+        addEclipseIntSetting(tab, "auto-percent", "Target %", 1, 100);
+        addEclipseToggle(tab, "death-action-enabled");
+        addEclipseToggle(tab, "complete-action-enabled");
+
+        tab.addLabel("Where It Works");
+
         addEclipseToggle(tab, "scope-gameplay");
         addEclipseToggle(tab, "scope-editor");
         addEclipseToggle(tab, "scope-menus");
+
+        tab.addLabel("On-Screen Indicator");
+
         addEclipseToggle(tab, "show-indicator");
-        addEclipseFloatSetting(tab, "indicator-x", "KR X");
-        addEclipseFloatSetting(tab, "indicator-y", "KR Y");
+        addEclipseFloatSetting(tab, "indicator-x", "Indicator X");
+        addEclipseFloatSetting(tab, "indicator-y", "Indicator Y");
     }
 
 }
@@ -351,6 +455,8 @@ class $modify(KeyRemapperPlayLayer, PlayLayer) {
     struct Fields {
         float previousPercent = 0.f;
         bool percentKeyPressed = false;
+        bool deathKeyPressed = false;
+        bool completeKeyPressed = false;
     };
 
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
@@ -358,6 +464,8 @@ class $modify(KeyRemapperPlayLayer, PlayLayer) {
 
         m_fields->previousPercent = getCurrentPercent();
         m_fields->percentKeyPressed = false;
+        m_fields->deathKeyPressed = false;
+        m_fields->completeKeyPressed = false;
 
         if (m_uiLayer) {
             auto label = CCLabelBMFont::create("", "chatFont.fnt");
@@ -379,6 +487,8 @@ class $modify(KeyRemapperPlayLayer, PlayLayer) {
         PlayLayer::resetLevel();
         m_fields->previousPercent = getCurrentPercent();
         m_fields->percentKeyPressed = false;
+        m_fields->deathKeyPressed = false;
+        m_fields->completeKeyPressed = false;
     }
 
     void postUpdate(float dt) {
@@ -394,22 +504,46 @@ class $modify(KeyRemapperPlayLayer, PlayLayer) {
         if (
             crossedTarget &&
             !m_fields->percentKeyPressed &&
-            Mod::get()->getSettingValue<bool>("enabled") &&
-            Mod::get()->getSettingValue<bool>("scope-gameplay") &&
-            Mod::get()->getSettingValue<bool>("auto-percent-enabled")
+            automaticActionAllowed("auto-percent-enabled")
         ) {
-            auto keys = Mod::get()->getSettingValue<std::vector<Keybind>>(
-                "auto-percent-key"
-            );
-            if (!keys.empty()) {
 #ifdef GEODE_IS_WINDOWS
-                tapKey(keys.front().key);
-#endif
+            if (tapConfiguredKey("auto-percent-key")) {
                 m_fields->percentKeyPressed = true;
             }
+#endif
         }
 
         m_fields->previousPercent = currentPercent;
+    }
+
+    void destroyPlayer(PlayerObject* player, GameObject* object) {
+        if (
+            !m_fields->deathKeyPressed &&
+            automaticActionAllowed("death-action-enabled")
+        ) {
+#ifdef GEODE_IS_WINDOWS
+            if (tapConfiguredKey("death-action-key")) {
+                m_fields->deathKeyPressed = true;
+            }
+#endif
+        }
+
+        PlayLayer::destroyPlayer(player, object);
+    }
+
+    void levelComplete() {
+        if (
+            !m_fields->completeKeyPressed &&
+            automaticActionAllowed("complete-action-enabled")
+        ) {
+#ifdef GEODE_IS_WINDOWS
+            if (tapConfiguredKey("complete-action-key")) {
+                m_fields->completeKeyPressed = true;
+            }
+#endif
+        }
+
+        PlayLayer::levelComplete();
     }
 };
 

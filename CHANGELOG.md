@@ -1,3 +1,15 @@
+## v1.8.0
+
+- **New:** added an optional key press when the player dies.
+- **New:** added an optional key press when a level is completed.
+- **New:** death and level-complete actions have separate enable switches and
+  configurable keys.
+- **Changed:** reorganized the Geode settings into clear titled sections.
+- **Changed:** redesigned the Eclipse tab with readable section labels and
+  live summaries for every automatic action.
+- **Changed:** replaced the unclear **KR %**, **KR X**, and **KR Y** Eclipse
+  field names with **Target %**, **Indicator X**, and **Indicator Y**.
+
 ## v1.7.0
 
 - **New:** added an optional automatic key press at a chosen level percentage.

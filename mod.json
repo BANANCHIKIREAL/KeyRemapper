@@ -5,9 +5,9 @@
     },
     "id": "bananchikireal.keyremapper",
     "name": "Key Remapper",
-    "version": "v1.7.0",
+    "version": "v1.8.0",
     "developer": "BANANCHIKIREAL",
-    "description": "Remap one key to another or press a selected key automatically at a chosen level percentage.",
+    "description": "Remap keys and automatically press selected keys at a percentage, on death, or on level completion.",
     "tags": [
         "utility",
         "customization",
@@ -24,9 +24,14 @@
         }
     },
     "settings": {
+        "main-section": {
+            "name": "Main Key Remap",
+            "description": "Choose the key you press and the additional key sent by the mod.",
+            "type": "title"
+        },
         "enabled": {
-            "name": "Enabled",
-            "description": "Turn the remap on or off without clearing your keys.",
+            "name": "Enable Key Remapper",
+            "description": "Master switch for the main remap and every automatic key action.",
             "type": "bool",
             "default": true
         },
@@ -41,6 +46,11 @@
             "description": "The key that gets pressed (and released) together with the trigger key.",
             "type": "keybind",
             "default": "Tab"
+        },
+        "automatic-section": {
+            "name": "Automatic Key Presses",
+            "description": "Configure keys that are pressed automatically during a level.",
+            "type": "title"
         },
         "auto-percent-enabled": {
             "name": "Press Key at Percent",
@@ -62,9 +72,38 @@
             "type": "keybind",
             "default": "Tab"
         },
+        "death-action-enabled": {
+            "name": "Press Key on Death",
+            "description": "Automatically press the selected key once when the player dies.",
+            "type": "bool",
+            "default": false
+        },
+        "death-action-key": {
+            "name": "Death Key",
+            "description": "The key pressed automatically when the player dies.",
+            "type": "keybind",
+            "default": "Tab"
+        },
+        "complete-action-enabled": {
+            "name": "Press Key on Level Complete",
+            "description": "Automatically press the selected key once when the level is completed.",
+            "type": "bool",
+            "default": false
+        },
+        "complete-action-key": {
+            "name": "Level Complete Key",
+            "description": "The key pressed automatically when the level is completed.",
+            "type": "keybind",
+            "default": "Tab"
+        },
+        "scope-section": {
+            "name": "Where It Works",
+            "description": "Choose where the main remap works. Automatic actions use Active in Levels.",
+            "type": "title"
+        },
         "scope-gameplay": {
             "name": "Active in Levels",
-            "description": "Whether the remap works while playing or practicing a level.",
+            "description": "Allow the main remap and automatic actions while playing or practicing a level.",
             "type": "bool",
             "default": true
         },
@@ -79,6 +118,11 @@
             "description": "Whether the remap works everywhere else (menus, etc).",
             "type": "bool",
             "default": true
+        },
+        "indicator-section": {
+            "name": "On-Screen Indicator",
+            "description": "Control the remap indicator shown while playing a level.",
+            "type": "title"
         },
         "show-indicator": {
             "name": "Show Indicator",
