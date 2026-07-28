@@ -1,3 +1,9 @@
+## v1.9.1
+
+- **Fixed:** added the Key Remapper logo to its QOLMod category button.
+- **Fixed:** QOLMod now loads the icon from the mod's extracted `logo.png`
+  instead of showing a text-only category.
+
 ## v1.9.0
 
 - **New:** added a configurable minimum percentage for the death key action.
