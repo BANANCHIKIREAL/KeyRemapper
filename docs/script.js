@@ -1,10 +1,7 @@
 const menuToggle = document.querySelector('[data-menu-toggle]');
 const nav = document.querySelector('[data-nav]');
 const header = document.querySelector('[data-header]');
-const keyFlow = document.querySelector('[data-key-flow]');
-const triggerKey = document.querySelector('[data-trigger]');
-const outputKey = document.querySelector('[data-output]');
-const statusText = document.querySelector('[data-status]');
+const iconTrigger = document.querySelector('[data-icon-trigger]');
 
 const closeMenu = () => {
   if (!menuToggle || !nav) return;
@@ -32,17 +29,11 @@ let releaseTimer;
 
 const activateRemap = () => {
   window.clearTimeout(releaseTimer);
-  keyFlow?.classList.add('is-active');
-  triggerKey?.classList.add('is-pressed');
-  outputKey?.classList.add('is-pressed');
-  if (statusText) statusText.textContent = 'Remap active — Up + Tab';
+  iconTrigger?.classList.add('is-active');
 };
 
 const releaseRemap = () => {
-  keyFlow?.classList.remove('is-active');
-  triggerKey?.classList.remove('is-pressed');
-  outputKey?.classList.remove('is-pressed');
-  if (statusText) statusText.textContent = 'Ready — click Up or press ↑';
+  iconTrigger?.classList.remove('is-active');
 };
 
 const pulseRemap = () => {
@@ -50,10 +41,10 @@ const pulseRemap = () => {
   releaseTimer = window.setTimeout(releaseRemap, 520);
 };
 
-triggerKey?.addEventListener('pointerdown', activateRemap);
-triggerKey?.addEventListener('pointerup', releaseRemap);
-triggerKey?.addEventListener('pointerleave', releaseRemap);
-triggerKey?.addEventListener('click', pulseRemap);
+iconTrigger?.addEventListener('pointerdown', activateRemap);
+iconTrigger?.addEventListener('pointerup', releaseRemap);
+iconTrigger?.addEventListener('pointerleave', releaseRemap);
+iconTrigger?.addEventListener('click', pulseRemap);
 
 document.addEventListener('keydown', (event) => {
   if (event.key !== 'ArrowUp' || event.repeat) return;
