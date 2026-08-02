@@ -16,7 +16,8 @@
     ],
     "links": {
         "source": "https://github.com/BANANCHIKIREAL/KeyRemapper",
-        "community": "https://discord.gg/Knh3YUUR3"
+        "community": "https://discord.gg/Knh3YUUR3",
+        "homepage": "https://key-remapper-gd.vercel.app"
     },
     "dependencies": {
         "eclipse.eclipse-menu": {

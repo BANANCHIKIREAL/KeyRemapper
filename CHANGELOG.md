@@ -1,5 +1,6 @@
 ## v1.9.2
 
+- **Website:** launched the official Key Remapper website on Vercel.
 - **New:** added the official Key Remapper Discord community link to the Geode
   mod details page.
 - **Documentation:** added the Discord invite to the README and in-game About
