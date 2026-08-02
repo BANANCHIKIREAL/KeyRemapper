@@ -8,6 +8,9 @@ Created by **BANANCHIKIREAL**.
 
 [Join the Key Remapper Discord server](https://discord.gg/Knh3YUUR3).
 
+[Visit the official Key Remapper website](https://key-remapper-gd.vercel.app)
+for downloads, installation steps, and release information.
+
 ## Example
 
 The default remap is:
