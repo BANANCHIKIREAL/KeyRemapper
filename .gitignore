@@ -6,8 +6,6 @@
 /.codex/
 /.vscode/
 /.idea/
-/.vercel/
-/docs/.vercel/
 
 # Generated binaries and packages
 *.dll
