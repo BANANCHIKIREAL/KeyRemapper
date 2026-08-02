@@ -6,6 +6,8 @@ Created by **BANANCHIKIREAL**.
 
 [View the source code on GitHub](https://github.com/BANANCHIKIREAL/KeyRemapper).
 
+[Join the Key Remapper Discord server](https://discord.gg/Knh3YUUR3).
+
 ## Example
 
 The default remap is:

@@ -10,6 +10,8 @@ Created by **BANANCHIKIREAL**.
 
 **Source code:** [github.com/BANANCHIKIREAL/KeyRemapper](https://github.com/BANANCHIKIREAL/KeyRemapper)
 
+**Discord:** [discord.gg/Knh3YUUR3](https://discord.gg/Knh3YUUR3)
+
 ## How it works
 
 Choose a **Trigger Key** and an **Also Presses** key in the mod settings.

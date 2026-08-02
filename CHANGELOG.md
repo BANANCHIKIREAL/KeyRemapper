@@ -1,3 +1,10 @@
+## v1.9.2
+
+- **New:** added the official Key Remapper Discord community link to the Geode
+  mod details page.
+- **Documentation:** added the Discord invite to the README and in-game About
+  page.
+
 ## v1.9.1
 
 - **Fixed:** added the Key Remapper logo to its QOLMod category button.
