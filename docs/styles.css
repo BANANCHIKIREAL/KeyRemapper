@@ -340,6 +340,11 @@ button.keycap { cursor: pointer; }
 .step-icon { width: 82px; height: 82px; margin: 45px 0 35px; display: grid; place-items: center; border-radius: 22px; font: 800 34px/1 "Space Grotesk", sans-serif; box-shadow: 0 8px 0 rgba(0,0,0,.25); transform: rotate(-3deg); }
 .step-icon--download { color: var(--ink); border: 3px solid var(--cyan-pale); background: var(--cyan); }
 .step-icon--folder { color: var(--ink); border: 3px solid #ffe5a2; background: var(--orange); transform: rotate(3deg); }
+.step-icon--folder svg { width: 57px; overflow: visible; filter: drop-shadow(0 5px 0 rgba(79, 36, 4, .28)); }
+.step-icon--folder path { stroke: var(--ink); stroke-width: 4; stroke-linejoin: round; }
+.step-icon--folder .folder-back { fill: var(--cyan); }
+.step-icon--folder .folder-front { fill: var(--cream); }
+.step-icon--folder .folder-shine { fill: none; stroke: var(--orange-hot); stroke-width: 3; stroke-linecap: round; }
 .step-icon--play { color: var(--ink); border: 3px solid #fff8de; background: var(--cream); }
 .install-steps h3 { margin: 0 0 9px; font: 700 24px/1 "Space Grotesk", sans-serif; letter-spacing: -.03em; }
 .install-steps p { margin: 0; color: #9ba8cf; font-size: 14px; line-height: 1.6; }
