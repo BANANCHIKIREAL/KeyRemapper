@@ -4,10 +4,6 @@ Press one key to automatically press another key.
 
 Created by **BANANCHIKIREAL**.
 
-[View the source code on GitHub](https://github.com/BANANCHIKIREAL/KeyRemapper).
-
-[Join the Key Remapper Discord server](https://discord.gg/Knh3YUUR3).
-
 ## Example
 
 The default remap is:
@@ -36,9 +32,9 @@ selected percentage.
 
 ## Press a key on death or completion
 
-Enable **Press Key on Death**, choose **Death Minimum Percent**, and select
-**Death Key**. The key only presses when the player dies after reaching the
-selected percentage.
+Enable **Press Key on Death** and select **Death Key**. Turn off **Only After
+Minimum Percent** to press the key on every death. Leave it on to require the
+selected **Death Minimum Percent** first.
 
 Enable **Press Key on Level Complete** and choose **Level Complete Key** to
 press a key when the level is completed.
@@ -54,8 +50,9 @@ Eclipse is optional.
 ## QOLMod
 
 If QOLMod 2.8.6 or newer is installed, open its **Key Remapper** category to
-control the automatic actions, **Target %**, **Death After %**, level scope,
-and indicator. Use **Choose Keys & More** to select keys in Geode settings.
+control the automatic actions, both death modes, percentages, level scope,
+and indicator. Unavailable options are grayed out. Use **Choose Keys & More**
+to select keys in Geode settings.
 
 QOLMod is optional.
 
@@ -82,6 +79,7 @@ The indicator flashes when the remap activates.
 
 * **Enable Key Remapper** turns all actions on or off without deleting your
   settings.
+* Unavailable settings are locked and show what must be enabled first.
 * The trigger key is not blocked; the output key is added to it.
 * Do not set both keys to the same key.
 * This mod is made for Windows.

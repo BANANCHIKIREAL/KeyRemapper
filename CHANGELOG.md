@@ -1,3 +1,21 @@
+## v2.0.0
+
+- **New:** added an **Only After Minimum Percent** death mode switch. Turn it
+  off to press the chosen key on every death, or leave it on to require the
+  configured percentage.
+- **New:** dependent Geode settings are now grayed out and show a red message
+  explaining which parent feature must be enabled.
+- **Changed:** disabling the master switch now locks every dependent setting
+  and hides the in-level indicator without clearing saved values.
+- **Changed:** QOLMod settings now gray out unavailable controls and display a
+  clear red status message.
+- **Changed:** Eclipse controls now reject changes while their required parent
+  setting is disabled.
+- **Changed:** refreshed the settings layout, descriptions, website, and
+  documentation for the new death modes.
+- **Changed:** removed repeated source, Discord, and website links from the
+  in-game description because Geode already displays them as buttons.
+
 ## v1.9.2
 
 - **New:** added the official Key Remapper Discord community link to the Geode

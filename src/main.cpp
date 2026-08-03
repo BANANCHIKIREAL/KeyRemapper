@@ -182,13 +182,56 @@ namespace {
     }
 
     std::string describeDeathAction() {
+        auto everyDeath = !Mod::get()->getSettingValue<bool>("death-after-percent");
         auto minimumPercent = Mod::get()->getSettingValue<int>("death-min-percent");
         return fmt::format(
-            "On death after {}%: {} ({})",
-            minimumPercent,
+            "On {}: {} ({})",
+            everyDeath ? std::string("every death") : fmt::format("death after {}%", minimumPercent),
             configuredKeyName("death-action-key"),
             enabledState("death-action-enabled")
         );
+    }
+
+    bool settingIsAvailable(std::string_view settingId) {
+        auto mod = Mod::get();
+        auto enabled = mod->getSettingValue<bool>("enabled");
+        auto inLevels = mod->getSettingValue<bool>("scope-gameplay");
+
+        if (settingId == "enabled") return true;
+        if (settingId == "scope-gameplay" ||
+            settingId == "scope-editor" ||
+            settingId == "scope-menus") {
+            return enabled;
+        }
+        if (settingId == "auto-percent-enabled" ||
+            settingId == "death-action-enabled" ||
+            settingId == "complete-action-enabled" ||
+            settingId == "show-indicator") {
+            return enabled && inLevels;
+        }
+        if (settingId == "auto-percent" || settingId == "auto-percent-key") {
+            return enabled && inLevels &&
+                mod->getSettingValue<bool>("auto-percent-enabled");
+        }
+        if (settingId == "death-after-percent" || settingId == "death-action-key") {
+            return enabled && inLevels &&
+                mod->getSettingValue<bool>("death-action-enabled");
+        }
+        if (settingId == "death-min-percent") {
+            return enabled && inLevels &&
+                mod->getSettingValue<bool>("death-action-enabled") &&
+                mod->getSettingValue<bool>("death-after-percent");
+        }
+        if (settingId == "complete-action-key") {
+            return enabled && inLevels &&
+                mod->getSettingValue<bool>("complete-action-enabled");
+        }
+        if (settingId == "indicator-x" || settingId == "indicator-y") {
+            return enabled && inLevels &&
+                mod->getSettingValue<bool>("show-indicator");
+        }
+
+        return enabled;
     }
 
     bool automaticActionAllowed(char const* enabledSettingId) {
@@ -251,6 +294,20 @@ namespace {
         return typeinfo_cast<cocos2d::CCLabelBMFont*>(pl->m_uiLayer->getChildByID(INDICATOR_ID));
     }
 
+    bool indicatorShouldBeVisible() {
+        auto mod = Mod::get();
+        return
+            mod->getSettingValue<bool>("enabled") &&
+            mod->getSettingValue<bool>("scope-gameplay") &&
+            mod->getSettingValue<bool>("show-indicator");
+    }
+
+    void refreshIndicatorVisibility() {
+        if (auto label = findIndicator()) {
+            label->setVisible(indicatorShouldBeVisible());
+        }
+    }
+
     void flashIndicator() {
         auto label = findIndicator();
         if (!label) return;
@@ -274,6 +331,13 @@ namespace {
             configId,
             setting->getDisplayName(),
             [mod, settingId, configId](float value) {
+                if (!settingIsAvailable(settingId)) {
+                    eclipse::config::set<double>(
+                        configId,
+                        mod->getSettingValue<double>(settingId)
+                    );
+                    return;
+                }
                 mod->setSettingValue<double>(settingId, value);
                 eclipse::config::set<double>(configId, value);
             }
@@ -292,10 +356,31 @@ namespace {
     }
 
     void addEclipseToggle(eclipse::MenuTab const& tab, char const* settingId) {
-        auto setting = Mod::get()->getSetting(settingId);
-        if (setting) {
-            tab.addModSettingToggle(setting);
-        }
+        auto mod = Mod::get();
+        auto setting = mod->getSetting(settingId);
+        if (!setting) return;
+
+        auto configId = mod->expandSpriteName(settingId);
+        auto toggle = tab.addToggle(
+            configId,
+            setting->getDisplayName(),
+            [mod, settingId, configId](bool value) {
+                if (!settingIsAvailable(settingId)) {
+                    eclipse::config::set<bool>(
+                        configId,
+                        mod->getSettingValue<bool>(settingId)
+                    );
+                    return;
+                }
+                mod->setSettingValue<bool>(settingId, value);
+            }
+        );
+        toggle.setDescription(setting->getDescription().value_or(""));
+        eclipse::config::set<bool>(configId, mod->getSettingValue<bool>(settingId));
+
+        listenForSettingChanges<bool>(settingId, [configId](bool value) {
+            eclipse::config::set<bool>(configId, value);
+        });
     }
 
     void addEclipseIntSetting(
@@ -314,6 +399,13 @@ namespace {
             configId,
             setting->getDisplayName(),
             [mod, settingId, configId, minValue, maxValue](float value) {
+                if (!settingIsAvailable(settingId)) {
+                    eclipse::config::set<double>(
+                        configId,
+                        mod->getSettingValue<int>(settingId)
+                    );
+                    return;
+                }
                 auto rounded = static_cast<int>(std::lround(value));
                 auto clamped = std::clamp(rounded, minValue, maxValue);
                 mod->setSettingValue<int>(settingId, clamped);
@@ -337,18 +429,33 @@ namespace {
 
     class QOLSettingsPanel : public cocos2d::CCNode {
     protected:
-        cocos2d::CCMenu* m_controls = nullptr;
+        struct ToggleControl {
+            std::string settingId;
+            CCMenuItemToggler* toggle;
+            cocos2d::CCLabelBMFont* label;
+        };
 
-        void addRowLabel(char const* text, float y) {
+        struct InputControl {
+            std::string settingId;
+            TextInput* input;
+        };
+
+        cocos2d::CCMenu* m_controls = nullptr;
+        cocos2d::CCLabelBMFont* m_status = nullptr;
+        std::vector<ToggleControl> m_toggles;
+        std::vector<InputControl> m_inputs;
+
+        cocos2d::CCLabelBMFont* addRowLabel(char const* text, float y) {
             auto label = cocos2d::CCLabelBMFont::create(text, "bigFont.fnt");
             label->setAnchorPoint(ccp(0.f, 0.5f));
             label->setPosition(ccp(15.f, y));
             label->limitLabelWidth(205.f, 0.38f, 0.2f);
             addChild(label);
+            return label;
         }
 
         void addToggleRow(char const* text, char const* settingId, float y) {
-            addRowLabel(text, y);
+            auto label = addRowLabel(text, y);
 
             auto toggle = CCMenuItemToggler::createWithStandardSprites(
                 this,
@@ -359,6 +466,7 @@ namespace {
             toggle->toggle(Mod::get()->getSettingValue<bool>(settingId));
             toggle->setPosition(ccp(318.f, y));
             m_controls->addChild(toggle);
+            m_toggles.push_back({ settingId, toggle, label });
         }
 
         void addPercentInput(char const* settingId, float y) {
@@ -372,6 +480,7 @@ namespace {
                 Mod::get()->getSettingValue<int>(settingId)
             ));
             input->setCallback([settingId, input](std::string const& value) {
+                if (!settingIsAvailable(settingId)) return;
                 auto parsed = geode::utils::numFromString<int>(value);
                 if (!parsed) return;
 
@@ -384,6 +493,34 @@ namespace {
                 }
             });
             addChild(input);
+            m_inputs.push_back({ settingId, input });
+        }
+
+        void refreshAvailability() {
+            for (auto const& control : m_toggles) {
+                auto available = settingIsAvailable(control.settingId);
+                control.toggle->setEnabled(available);
+                control.toggle->setOpacity(available ? 255 : 95);
+                control.label->setColor(
+                    available ? cocos2d::ccc3(255, 255, 255) : cocos2d::ccc3(125, 125, 125)
+                );
+            }
+
+            for (auto const& control : m_inputs) {
+                auto available = settingIsAvailable(control.settingId);
+                control.input->setEnabled(available);
+            }
+
+            auto mod = Mod::get();
+            if (!mod->getSettingValue<bool>("enabled")) {
+                m_status->setString("Turn on Key Remapper to unlock settings");
+            }
+            else if (!mod->getSettingValue<bool>("scope-gameplay")) {
+                m_status->setString("Turn on Active in Levels for level actions");
+            }
+            else {
+                m_status->setString("Gray options need their feature switch");
+            }
         }
 
         void onToggle(cocos2d::CCObject* sender) {
@@ -392,6 +529,7 @@ namespace {
                 toggle->getID(),
                 !toggle->isToggled()
             );
+            refreshAvailability();
         }
 
         void onOpenSettings(cocos2d::CCObject*) {
@@ -415,21 +553,29 @@ namespace {
                 "goldFont.fnt"
             );
             title->setScale(0.55f);
-            title->setPosition(ccp(170.f, 242.f));
+            title->setPosition(ccp(170.f, 247.f));
             addChild(title);
 
-            addToggleRow("Enable Key Remapper", "enabled", 210.f);
-            addToggleRow("Press at Target %", "auto-percent-enabled", 178.f);
-            addPercentInput("auto-percent", 178.f);
-            addToggleRow("Press on Death After %", "death-action-enabled", 146.f);
-            addPercentInput("death-min-percent", 146.f);
+            m_status = cocos2d::CCLabelBMFont::create("", "chatFont.fnt");
+            m_status->setColor(cocos2d::ccc3(255, 90, 90));
+            m_status->setScale(0.48f);
+            m_status->setPosition(ccp(170.f, 226.f));
+            m_status->limitLabelWidth(320.f, 0.48f, 0.25f);
+            addChild(m_status);
+
+            addToggleRow("Enable Key Remapper", "enabled", 202.f);
+            addToggleRow("Active in Levels", "scope-gameplay", 177.f);
+            addToggleRow("Press at Target %", "auto-percent-enabled", 152.f);
+            addPercentInput("auto-percent", 152.f);
+            addToggleRow("Press on Death", "death-action-enabled", 127.f);
+            addToggleRow("Only After Minimum %", "death-after-percent", 102.f);
+            addPercentInput("death-min-percent", 102.f);
             addToggleRow(
                 "Press on Level Complete",
                 "complete-action-enabled",
-                114.f
+                77.f
             );
-            addToggleRow("Active in Levels", "scope-gameplay", 82.f);
-            addToggleRow("Show Indicator", "show-indicator", 50.f);
+            addToggleRow("Show Indicator", "show-indicator", 52.f);
 
             auto buttonSprite = ButtonSprite::create("Choose Keys & More");
             buttonSprite->setScale(0.65f);
@@ -438,8 +584,10 @@ namespace {
                 this,
                 menu_selector(QOLSettingsPanel::onOpenSettings)
             );
-            button->setPosition(ccp(170.f, 20.f));
+            button->setPosition(ccp(170.f, 21.f));
             m_controls->addChild(button);
+
+            refreshAvailability();
 
             return true;
         }
@@ -539,6 +687,10 @@ namespace {
             "death-action-enabled",
             [updateDeathAction](bool) { updateDeathAction(); }
         );
+        listenForSettingChanges<bool>(
+            "death-after-percent",
+            [updateDeathAction](bool) { updateDeathAction(); }
+        );
         listenForSettingChanges<int>(
             "death-min-percent",
             [updateDeathAction](int) { updateDeathAction(); }
@@ -581,6 +733,7 @@ namespace {
         addEclipseToggle(tab, "auto-percent-enabled");
         addEclipseIntSetting(tab, "auto-percent", "Target %", 1, 100);
         addEclipseToggle(tab, "death-action-enabled");
+        addEclipseToggle(tab, "death-after-percent");
         addEclipseIntSetting(tab, "death-min-percent", "Death After %", 1, 100);
         addEclipseToggle(tab, "complete-action-enabled");
 
@@ -624,7 +777,7 @@ class $modify(KeyRemapperPlayLayer, PlayLayer) {
             label->setZOrder(100);
             updateIndicatorText(label);
             repositionIndicator(label);
-            label->setVisible(Mod::get()->getSettingValue<bool>("show-indicator"));
+            label->setVisible(indicatorShouldBeVisible());
             m_uiLayer->addChild(label);
         }
 
@@ -665,10 +818,14 @@ class $modify(KeyRemapperPlayLayer, PlayLayer) {
     }
 
     void destroyPlayer(PlayerObject* player, GameObject* object) {
+        auto onlyAfterPercent = Mod::get()->getSettingValue<bool>("death-after-percent");
         auto minimumPercent = Mod::get()->getSettingValue<int>("death-min-percent");
+        auto deathConditionMet =
+            !onlyAfterPercent ||
+            getCurrentPercent() >= static_cast<float>(minimumPercent);
         if (
             !m_fields->deathKeyPressed &&
-            getCurrentPercent() >= static_cast<float>(minimumPercent) &&
+            deathConditionMet &&
             automaticActionAllowed("death-action-enabled")
         ) {
 #ifdef GEODE_IS_WINDOWS
@@ -712,8 +869,14 @@ $on_mod(Loaded) {
     listenForSettingChanges<double>("indicator-y", [](double) {
         if (auto label = findIndicator()) repositionIndicator(label);
     });
-    listenForSettingChanges<bool>("show-indicator", [](bool visible) {
-        if (auto label = findIndicator()) label->setVisible(visible);
+    listenForSettingChanges<bool>("enabled", [](bool) {
+        refreshIndicatorVisibility();
+    });
+    listenForSettingChanges<bool>("scope-gameplay", [](bool) {
+        refreshIndicatorVisibility();
+    });
+    listenForSettingChanges<bool>("show-indicator", [](bool) {
+        refreshIndicatorVisibility();
     });
 
     listenForKeybindSettingPresses(

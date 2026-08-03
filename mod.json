@@ -5,7 +5,7 @@
     },
     "id": "bananchikireal.keyremapper",
     "name": "Key Remapper",
-    "version": "v1.9.2",
+    "version": "v2.0.0",
     "developer": "BANANCHIKIREAL",
     "description": "Remap keys and automatically press selected keys at a percentage, on death, or on level completion.",
     "tags": [
@@ -16,7 +16,8 @@
     ],
     "links": {
         "source": "https://github.com/BANANCHIKIREAL/KeyRemapper",
-        "community": "https://discord.gg/Knh3YUUR3"
+        "community": "https://discord.gg/Knh3YUUR3",
+        "homepage": "https://key-remapper-gd.vercel.app"
     },
     "dependencies": {
         "eclipse.eclipse-menu": {
@@ -44,13 +45,17 @@
             "name": "Trigger Key",
             "description": "The key you actually press.",
             "type": "keybind",
-            "default": "Up"
+            "default": "Up",
+            "enable-if": "enabled",
+            "enable-if-description": "Enable Key Remapper to choose the trigger key."
         },
         "output-key": {
             "name": "Also Presses",
             "description": "The key that gets pressed (and released) together with the trigger key.",
             "type": "keybind",
-            "default": "Tab"
+            "default": "Tab",
+            "enable-if": "enabled",
+            "enable-if-description": "Enable Key Remapper to choose the output key."
         },
         "automatic-section": {
             "name": "Automatic Key Presses",
@@ -61,7 +66,9 @@
             "name": "Press Key at Percent",
             "description": "Automatically press the selected key once when the target percentage is reached.",
             "type": "bool",
-            "default": false
+            "default": false,
+            "enable-if": "enabled && scope-gameplay",
+            "enable-if-description": "Enable Key Remapper and Active in Levels to use this action."
         },
         "auto-percent": {
             "name": "Target Percent",
@@ -69,19 +76,33 @@
             "type": "int",
             "default": 50,
             "min": 1,
-            "max": 100
+            "max": 100,
+            "enable-if": "enabled && scope-gameplay && auto-percent-enabled",
+            "enable-if-description": "Turn on Press Key at Percent to change this value."
         },
         "auto-percent-key": {
             "name": "Percent Key",
             "description": "The key pressed automatically when the target percentage is reached.",
             "type": "keybind",
-            "default": "Tab"
+            "default": "Tab",
+            "enable-if": "enabled && scope-gameplay && auto-percent-enabled",
+            "enable-if-description": "Turn on Press Key at Percent to choose this key."
         },
         "death-action-enabled": {
             "name": "Press Key on Death",
-            "description": "Press the selected key when the player dies after reaching the minimum percentage.",
+            "description": "Press the selected key whenever the player dies, with an optional minimum percentage.",
             "type": "bool",
-            "default": false
+            "default": false,
+            "enable-if": "enabled && scope-gameplay",
+            "enable-if-description": "Enable Key Remapper and Active in Levels to use this action."
+        },
+        "death-after-percent": {
+            "name": "Only After Minimum Percent",
+            "description": "On: press only after the chosen percentage. Off: press on every death.",
+            "type": "bool",
+            "default": true,
+            "enable-if": "enabled && scope-gameplay && death-action-enabled",
+            "enable-if-description": "Turn on Press Key on Death to choose the death mode."
         },
         "death-min-percent": {
             "name": "Death Minimum Percent",
@@ -89,25 +110,33 @@
             "type": "int",
             "default": 50,
             "min": 1,
-            "max": 100
+            "max": 100,
+            "enable-if": "enabled && scope-gameplay && death-action-enabled && death-after-percent",
+            "enable-if-description": "Turn on Press Key on Death and Only After Minimum Percent to change this value."
         },
         "death-action-key": {
             "name": "Death Key",
-            "description": "The key pressed when the player dies after reaching the minimum percentage.",
+            "description": "The key pressed when the configured death condition is met.",
             "type": "keybind",
-            "default": "Tab"
+            "default": "Tab",
+            "enable-if": "enabled && scope-gameplay && death-action-enabled",
+            "enable-if-description": "Turn on Press Key on Death to choose this key."
         },
         "complete-action-enabled": {
             "name": "Press Key on Level Complete",
             "description": "Automatically press the selected key once when the level is completed.",
             "type": "bool",
-            "default": false
+            "default": false,
+            "enable-if": "enabled && scope-gameplay",
+            "enable-if-description": "Enable Key Remapper and Active in Levels to use this action."
         },
         "complete-action-key": {
             "name": "Level Complete Key",
             "description": "The key pressed automatically when the level is completed.",
             "type": "keybind",
-            "default": "Tab"
+            "default": "Tab",
+            "enable-if": "enabled && scope-gameplay && complete-action-enabled",
+            "enable-if-description": "Turn on Press Key on Level Complete to choose this key."
         },
         "scope-section": {
             "name": "Where It Works",
@@ -118,19 +147,25 @@
             "name": "Active in Levels",
             "description": "Allow the main remap and automatic actions while playing or practicing a level.",
             "type": "bool",
-            "default": true
+            "default": true,
+            "enable-if": "enabled",
+            "enable-if-description": "Enable Key Remapper to change where it works."
         },
         "scope-editor": {
             "name": "Active in Editor",
             "description": "Whether the remap works in the level editor.",
             "type": "bool",
-            "default": true
+            "default": true,
+            "enable-if": "enabled",
+            "enable-if-description": "Enable Key Remapper to change where it works."
         },
         "scope-menus": {
             "name": "Active in Menus",
             "description": "Whether the remap works everywhere else (menus, etc).",
             "type": "bool",
-            "default": true
+            "default": true,
+            "enable-if": "enabled",
+            "enable-if-description": "Enable Key Remapper to change where it works."
         },
         "indicator-section": {
             "name": "On-Screen Indicator",
@@ -141,19 +176,25 @@
             "name": "Show Indicator",
             "description": "Show the on-screen binding indicator while playing a level.",
             "type": "bool",
-            "default": true
+            "default": true,
+            "enable-if": "enabled && scope-gameplay",
+            "enable-if-description": "Enable Key Remapper and Active in Levels to show the indicator."
         },
         "indicator-x": {
             "name": "Indicator X",
             "description": "Horizontal position of the on-screen binding indicator, in levels.",
             "type": "float",
-            "default": 50.0
+            "default": 50.0,
+            "enable-if": "enabled && scope-gameplay && show-indicator",
+            "enable-if-description": "Turn on Show Indicator to change its position."
         },
         "indicator-y": {
             "name": "Indicator Y",
             "description": "Vertical position of the on-screen binding indicator, in levels.",
             "type": "float",
-            "default": 50.0
+            "default": 50.0,
+            "enable-if": "enabled && scope-gameplay && show-indicator",
+            "enable-if-description": "Turn on Show Indicator to change its position."
         }
     }
 }

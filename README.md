@@ -8,10 +8,6 @@ system-level key press at the same time.
 
 Created by **BANANCHIKIREAL**.
 
-**Source code:** [github.com/BANANCHIKIREAL/KeyRemapper](https://github.com/BANANCHIKIREAL/KeyRemapper)
-
-**Discord:** [discord.gg/Knh3YUUR3](https://discord.gg/Knh3YUUR3)
-
 ## How it works
 
 Choose a **Trigger Key** and an **Also Presses** key in the mod settings.
@@ -41,7 +37,10 @@ Dash action; the mod simply adds the configured output key.
 - Conflict warnings when both sides use the same key.
 - A master switch that disables remapping without clearing your configuration.
 - An optional automatic key press at a selected percentage from 1% to 100%.
-- Optional automatic key presses on death and on level completion.
+- Optional automatic key presses on every death, after a minimum percentage,
+  and on level completion.
+- Dependent settings lock automatically and explain which switch must be
+  enabled first.
 - An optional settings tab inside Eclipse 1.9.4 or newer.
 - An optional settings category inside QOLMod 2.8.6 or newer.
 
@@ -63,16 +62,18 @@ When **Eclipse 1.9.4 or newer** is installed, its menu contains a
 automatic actions, activity scopes, and the on-screen indicator.
 
 The tab displays live summaries for the percentage, death, and level-complete
-actions. Its **Choose All Keys** button opens the native Geode settings because
-the Eclipse API does not provide a keybind picker. Eclipse is optional; Key
-Remapper works normally without it.
+actions. Dependent Eclipse controls cannot change their values until their
+parent feature is enabled. Its **Choose All Keys** button opens the native
+Geode settings because the Eclipse API does not provide a keybind picker.
+Eclipse is optional; Key Remapper works normally without it.
 
 ## QOLMod integration
 
 When **QOLMod 2.8.6 or newer** is installed, its menu contains a dedicated
 **Key Remapper** category. It includes the main switch, automatic-action
-switches, **Target %**, **Death After %**, level scope, and indicator
-visibility.
+switches, **Target %**, both death modes, **Death After %**, level scope, and
+indicator visibility. Unavailable controls are grayed out and a red status
+line explains what must be enabled.
 
 Use **Choose Keys & More** in that category to open the native Geode settings
 for key selection and the remaining options. QOLMod is optional.
@@ -87,8 +88,9 @@ for key selection and the remaining options. QOLMod is optional.
 | **Press Key at Percent** | Off | Enables the automatic percentage action. |
 | **Target Percent** | 50 | Selects the activation point from 1% to 100%. |
 | **Percent Key** | Tab | Selects the key pressed at the target percentage. |
-| **Press Key on Death** | Off | Enables an automatic key press when the player dies after the minimum percentage. |
-| **Death Minimum Percent** | 50 | Sets the minimum progress required before the death action can run. |
+| **Press Key on Death** | Off | Enables an automatic key press when the player dies. |
+| **Only After Minimum Percent** | On | On: require the chosen progress. Off: press on every death. |
+| **Death Minimum Percent** | 50 | Sets the minimum progress when the percentage requirement is enabled. |
 | **Death Key** | Tab | Selects the key pressed on death. |
 | **Press Key on Level Complete** | Off | Enables an automatic key press when a level is completed. |
 | **Level Complete Key** | Tab | Selects the key pressed on level completion. |
@@ -110,10 +112,10 @@ The action is armed again when the level attempt resets. It follows the main
 
 ## Death and completion actions
 
-Enable **Press Key on Death**, select **Death Minimum Percent**, and choose
-**Death Key**. The key is pressed and released only when the player dies at or
-after the selected percentage. For example, a value of **50** ignores deaths
-before 50%.
+Enable **Press Key on Death** and choose **Death Key**. Turn off **Only After
+Minimum Percent** to press and release the key on every death. Leave it on and
+select **Death Minimum Percent** to ignore earlier deaths. For example, a value
+of **50** only triggers at 50% or later.
 
 Enable **Press Key on Level Complete** and select **Level Complete Key** to
 press and release that key once when the level is completed.
@@ -173,7 +175,8 @@ sending a key to itself does not create a useful remap.
 - Key Remapper adds an output press; it does not suppress the original input.
 - The output is sent as a Windows system key event.
 - Disabling the indicator does not disable the remap.
-- Disabling **Enable Key Remapper** keeps all other settings saved.
+- Disabling **Enable Key Remapper** locks dependent controls, hides the
+  indicator, and keeps all saved values intact.
 
 ---
 
