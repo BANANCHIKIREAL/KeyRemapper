@@ -1,3 +1,11 @@
+## v2.0.1
+
+- **Changed:** replaced the colored QOLMod category icon with a dedicated
+  white outline icon that matches QOLMod's monochrome category style.
+- **Changed:** the regular Geode mod icon remains full-color; the new icon is
+  used only inside QOLMod.
+- **Changed:** updated the website and social banner for version **2.0.1**.
+
 ## v2.0.0
 
 - **New:** added an **Only After Minimum Percent** death mode switch. Turn it

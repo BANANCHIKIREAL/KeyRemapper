@@ -610,7 +610,7 @@ namespace {
 
         qolmod::ext::CategoryData category;
         category.displayName = "Key Remapper";
-        category.iconSpr = (Mod::get()->getTempDir() / "logo.png").string();
+        category.iconSpr = (Mod::get()->getResourcesDir() / "qol-icon.png").string();
         category.categoryID = "bananchikireal.keyremapper";
         category.customFunc = [](cocos2d::CCMenu* menu) {
             auto panel = QOLSettingsPanel::create();
